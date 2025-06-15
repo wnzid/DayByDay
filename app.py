@@ -28,6 +28,15 @@ def init_db():
     db.commit()
 
 
+def migrate_db():
+    """Ensure the database schema is up to date."""
+    db = get_db()
+    columns = [row['name'] for row in db.execute('PRAGMA table_info(habits)')]
+    if 'color' not in columns:
+        db.execute("ALTER TABLE habits ADD COLUMN color TEXT NOT NULL DEFAULT '#ffffff'")
+        db.commit()
+
+
 @app.route('/')
 def index():
     db = get_db()
@@ -39,4 +48,7 @@ if __name__ == '__main__':
     if not os.path.exists(DATABASE):
         with app.app_context():
             init_db()
+    else:
+        with app.app_context():
+            migrate_db()
     app.run(debug=True)
