@@ -4,6 +4,8 @@ import os
 from db import init_db, migrate_db
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
+from datetime import datetime
+import calendar
 
 DATABASE = os.path.join(os.path.dirname(__file__), 'app.db')
 
@@ -72,7 +74,19 @@ def index():
         'SELECT name, color FROM habits WHERE user_id = ?',
         (session['user_id'],)
     ).fetchall()
-    return render_template('index.html', habits=habits)
+    now = datetime.now()
+    year = now.year
+    month = now.month
+    cal = calendar.Calendar()
+    weeks = cal.monthdayscalendar(year, month)
+    month_name = calendar.month_name[month]
+    return render_template(
+        'index.html',
+        habits=habits,
+        month_name=month_name,
+        year=year,
+        weeks=weeks,
+    )
 
 
 @app.route('/register', methods=['GET', 'POST'])
