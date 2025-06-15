@@ -33,6 +33,13 @@
       {% else %}
         <div class="calendar-cell flex-fill text-center border rounded shadow-sm p-3 bg-white">
           <strong><a href="/track/{{ year }}/{{ month }}/{{ day }}">{{ day }}</a></strong>
+          {% if day_colors.get(day) %}
+            <div class="color-dots mt-2">
+              {% for color in day_colors[day] %}
+                <div class="color-dot" style="background-color: {{ color }};"></div>
+              {% endfor %}
+            </div>
+          {% endif %}
         </div>
       {% endif %}
     {% endfor %}
