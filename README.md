@@ -46,5 +46,9 @@ gunicorn app:app
 
 ## License
 
-This project is licensed under the MIT License. Feel free to use it as a starting point for your own habit tracking tools.
+This project is licensed under the MIT License. Feel free to use it as a starting point for your own habit tracking tools. Don't forget to give credits.
+
+---
+
+### @wnizd
 
