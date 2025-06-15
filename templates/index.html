@@ -7,6 +7,13 @@
 </head>
 <body>
     <h1>Habit Tracker</h1>
+    <div>
+        {% if session.get('user_id') %}
+        <a href="{{ url_for('logout') }}">Logout</a>
+        {% else %}
+        <a href="{{ url_for('login') }}">Login</a>
+        {% endif %}
+    </div>
     <div class='calendar'>
         {% for day in range(1, 31) %}
         <div>{{ day }}</div>
