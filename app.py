@@ -49,6 +49,9 @@ COLOR_PALETTE = [
     "#000080", "#808080",
 ]
 
+# Mapping priorities to sortable ranks
+PRIORITY_RANK = {"High": 1, "Medium": 2, "Low": 3}
+
 
 def get_next_color(db, user_id):
     """Return the first color from the palette that isn't used by the user."""
@@ -96,10 +99,10 @@ def calendar_view(year, month):
     if next_month > 12:
         next_month = 1
         next_year += 1
-    # completed logs for month with associated colors
+    # completed logs for month with associated habit info
     logs = db.execute(
         """
-        SELECT habit_log.habit_id, habits.color, habit_log.date
+        SELECT habit_log.habit_id, habits.color, habits.name, habits.priority, habit_log.date
         FROM habit_log
         JOIN habits ON habit_log.habit_id = habits.id
         WHERE habits.user_id = ?
@@ -109,11 +112,19 @@ def calendar_view(year, month):
         (session['user_id'], str(year), f"{month:02d}")
     ).fetchall()
 
-    # Map day number to list of colors
+    # Map day number to list of habit dicts and sort by priority
     day_colors = {}
     for row in logs:
         day = int(row['date'].split('-')[2])
-        day_colors.setdefault(day, []).append(row['color'])
+        entry = {
+            'color': row['color'],
+            'name': row['name'],
+            'priority': row['priority']
+        }
+        day_colors.setdefault(day, []).append(entry)
+
+    for habits_list in day_colors.values():
+        habits_list.sort(key=lambda h: PRIORITY_RANK.get(h['priority'].capitalize(), 4))
 
     completed = {f"{row['habit_id']}_{row['date']}" for row in logs}
     return render_template(
