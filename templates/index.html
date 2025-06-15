@@ -1,24 +1,22 @@
 {% extends 'base.html' %}
 {% block title %}Dashboard{% endblock %}
 {% block content %}
-<h1 class="mb-4">Habit Tracker</h1>
+<h1 class="mb-4 fw-semibold">Habit Tracker</h1>
 <div class="calendar mb-4">
     {% for day in range(1, 31) %}
     <div>{{ day }}</div>
     {% endfor %}
 </div>
-<p>
-  <a href="{{ url_for('manage_habits') }}" class="btn btn-primary">Manage Habits</a>
-</p>
+<a href="{{ url_for('manage_habits') }}" class="btn btn-primary mb-4">Manage Habits</a>
 <div class="legend">
-    <h3>Habits</h3>
+    <h3 class="h5 mb-3 fw-semibold">Habits</h3>
     {% for habit in habits %}
     <div class="legend-item">
-        <div class="legend-color" style="background-color: {{ habit['color'] }};"></div>
+        <span class="legend-color" style="background-color: {{ habit['color'] }};"></span>
         <span>{{ habit['name'] }}</span>
     </div>
     {% else %}
-    <p>No habits yet.</p>
+    <p class="text-muted">No habits yet.</p>
     {% endfor %}
 </div>
 {% endblock %}

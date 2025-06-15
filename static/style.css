@@ -1,35 +1,74 @@
 body {
-    font-family: Arial, sans-serif;
+  font-family: 'Poppins', sans-serif;
+  background-color: #f5f7fb;
+  color: #333;
+}
+
+.navbar {
+  background-color: #ffffff !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.navbar-brand {
+  font-weight: 600;
 }
 
 .calendar {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
 }
 
 .calendar div {
-    border: 1px solid #ccc;
-    padding: 20px;
-    min-height: 60px;
-    text-align: right;
-    font-size: 0.8rem;
+  background-color: #ffffff;
+  border: 1px solid #e1e5ea;
+  border-radius: 6px;
+  padding: 20px;
+  min-height: 60px;
+  text-align: right;
+  font-size: 0.8rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .legend {
-    margin-top: 20px;
+  margin-top: 30px;
 }
 
 .legend-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
 }
 
 .legend-color {
-    width: 16px;
-    height: 16px;
-    margin-right: 8px;
-    border-radius: 4px;
-    display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.card {
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.table {
+  background-color: #fff;
+}
+
+.table th {
+  border-bottom: none;
+  font-weight: 600;
+}
+
+.btn-primary {
+  background-color: #4e6ef2;
+  border-color: #4e6ef2;
+}
+
+.btn-primary:hover {
+  background-color: #3e5ce8;
+  border-color: #3e5ce8;
 }
