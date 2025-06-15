@@ -12,7 +12,11 @@
           </div>
           <div class="mb-3">
             <label for="password" class="form-label">Password</label>
-            <input type="password" class="form-control" name="password" required>
+            <input id="password" type="password" class="form-control" name="password" required>
+          </div>
+          <div class="form-check mb-3">
+            <input type="checkbox" class="form-check-input" id="togglePassword">
+            <label class="form-check-label" for="togglePassword">Show Password</label>
           </div>
           <button type="submit" class="btn btn-success w-100">Register</button>
         </form>
@@ -20,4 +24,12 @@
     </div>
   </div>
 </div>
+<script>
+const toggle = document.getElementById('togglePassword');
+const password = document.getElementById('password');
+
+toggle.addEventListener('change', function () {
+  password.type = this.checked ? 'text' : 'password';
+});
+</script>
 {% endblock %}
