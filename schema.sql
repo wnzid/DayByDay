@@ -1,0 +1,23 @@
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS habits;
+DROP TABLE IF EXISTS habit_log;
+
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL
+);
+
+CREATE TABLE habits (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
+
+CREATE TABLE habit_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    habit_id INTEGER NOT NULL,
+    date TEXT NOT NULL,
+    FOREIGN KEY(habit_id) REFERENCES habits(id)
+);
