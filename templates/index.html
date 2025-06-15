@@ -31,14 +31,16 @@
       {% if day == 0 %}
         <div class="calendar-day"></div>
       {% else %}
-        <div class="calendar-day">
-          <strong><a href="/track/{{ year }}/{{ month }}/{{ day }}">{{ day }}</a></strong>
-          <div class="color-strip">
-            {% for color in day_colors.get(day, []) %}
-              <div class="color-dot" style="background-color: {{ color }};"></div>
-            {% endfor %}
+        <a href="/track/{{ year }}/{{ month }}/{{ day }}" style="text-decoration: none; color: inherit;">
+          <div class="calendar-day">
+            <strong>{{ day }}</strong>
+            <div class="color-strip">
+              {% for color in day_colors.get(day, []) %}
+                <div class="color-dot" style="background-color: {{ color }};"></div>
+              {% endfor %}
+            </div>
           </div>
-        </div>
+        </a>
       {% endif %}
     {% endfor %}
   {% endfor %}
