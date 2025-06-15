@@ -38,6 +38,28 @@ def login_required(view):
 
     return wrapped_view
 
+# Preset list of colors used when no color is provided
+COLOR_PALETTE = [
+    "#e6194b", "#3cb44b", "#ffe119", "#0082c8", "#f58231", "#911eb4",
+    "#46f0f0", "#f032e6", "#d2f53c", "#fabebe", "#008080", "#e6beff",
+    "#aa6e28", "#fffac8", "#800000", "#aaffc3", "#808000", "#ffd8b1",
+    "#000080", "#808080",
+]
+
+
+def get_next_color(db, user_id):
+    """Return the first color from the palette that isn't used by the user."""
+    rows = db.execute(
+        "SELECT color FROM habits WHERE user_id = ?",
+        (user_id,),
+    ).fetchall()
+    used = {row["color"] for row in rows}
+    for color in COLOR_PALETTE:
+        if color not in used:
+            return color
+    # fallback if all colors are used
+    return COLOR_PALETTE[0]
+
 
 
 
@@ -91,6 +113,75 @@ def login():
 def logout():
     session.clear()
     return redirect(url_for('login'))
+
+
+# ---------------- Habit management -----------------
+
+@app.route('/habits')
+@login_required
+def manage_habits():
+    db = get_db()
+    habits = db.execute(
+        'SELECT id, name, priority, color FROM habits WHERE user_id = ?',
+        (session['user_id'],),
+    ).fetchall()
+    return render_template('habits.html', habits=habits)
+
+
+@app.route('/habits/add', methods=['GET', 'POST'])
+@login_required
+def add_habit():
+    db = get_db()
+    if request.method == 'POST':
+        name = request.form['name']
+        priority = request.form['priority']
+        color = request.form.get('color', '').strip()
+        if not color:
+            color = get_next_color(db, session['user_id'])
+        db.execute(
+            'INSERT INTO habits (user_id, name, priority, color) VALUES (?, ?, ?, ?)',
+            (session['user_id'], name, priority, color),
+        )
+        db.commit()
+        return redirect(url_for('manage_habits'))
+    return render_template('habit_form.html', habit=None)
+
+
+@app.route('/habits/edit/<int:habit_id>', methods=['GET', 'POST'])
+@login_required
+def edit_habit(habit_id):
+    db = get_db()
+    habit = db.execute(
+        'SELECT * FROM habits WHERE id = ? AND user_id = ?',
+        (habit_id, session['user_id']),
+    ).fetchone()
+    if habit is None:
+        return redirect(url_for('manage_habits'))
+    if request.method == 'POST':
+        name = request.form['name']
+        priority = request.form['priority']
+        color = request.form.get('color', '').strip()
+        if not color:
+            color = get_next_color(db, session['user_id'])
+        db.execute(
+            'UPDATE habits SET name = ?, priority = ?, color = ? WHERE id = ? AND user_id = ?',
+            (name, priority, color, habit_id, session['user_id']),
+        )
+        db.commit()
+        return redirect(url_for('manage_habits'))
+    return render_template('habit_form.html', habit=habit)
+
+
+@app.route('/habits/delete/<int:habit_id>', methods=['POST'])
+@login_required
+def delete_habit(habit_id):
+    db = get_db()
+    db.execute(
+        'DELETE FROM habits WHERE id = ? AND user_id = ?',
+        (habit_id, session['user_id']),
+    )
+    db.commit()
+    return redirect(url_for('manage_habits'))
 
 
 if __name__ == '__main__':
