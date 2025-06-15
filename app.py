@@ -7,6 +7,9 @@ DATABASE = os.path.join(os.path.dirname(__file__), 'app.db')
 
 app = Flask(__name__)
 
+with app.app_context():
+    init_db()
+
 
 def get_db():
     if 'db' not in g:
@@ -32,6 +35,4 @@ def index():
 
 
 if __name__ == '__main__':
-    with app.app_context():
-        init_db()
     app.run(debug=True)
