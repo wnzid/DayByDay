@@ -96,10 +96,10 @@ def calendar_view(year, month):
     if next_month > 12:
         next_month = 1
         next_year += 1
-    # completed logs for month
+    # completed logs for month with associated colors
     logs = db.execute(
         """
-        SELECT habit_log.habit_id, habit_log.date
+        SELECT habit_log.habit_id, habits.color, habit_log.date
         FROM habit_log
         JOIN habits ON habit_log.habit_id = habits.id
         WHERE habits.user_id = ?
@@ -108,6 +108,13 @@ def calendar_view(year, month):
         """,
         (session['user_id'], str(year), f"{month:02d}")
     ).fetchall()
+
+    # Map day number to list of colors
+    day_colors = {}
+    for row in logs:
+        day = int(row['date'].split('-')[2])
+        day_colors.setdefault(day, []).append(row['color'])
+
     completed = {f"{row['habit_id']}_{row['date']}" for row in logs}
     return render_template(
         'index.html',
@@ -122,6 +129,7 @@ def calendar_view(year, month):
         next_year=next_year,
         next_month=next_month,
         completed=completed,
+        day_colors=day_colors,
     )
 
 
