@@ -35,9 +35,13 @@
           <div class="calendar-day">
             <strong>{{ day }}</strong>
             <div class="color-strip">
-              {% for color in day_colors.get(day, []) %}
-                <div class="color-dot" style="background-color: {{ color }};"></div>
+              {% set items = day_colors.get(day, []) %}
+              {% for habit in items[:3] %}
+                <div class="color-dot" style="background-color: {{ habit['color'] }};" title="{{ habit['name'] }}"></div>
               {% endfor %}
+              {% if items|length > 3 %}
+                <div class="extra-badge">+{{ items|length - 3 }}</div>
+              {% endif %}
             </div>
           </div>
         </a>

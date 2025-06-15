@@ -94,10 +94,24 @@ a:visited {
   gap: 4px;
   margin-top: 6px;
   max-height: 40px;
+  overflow: hidden;
+  align-items: center;
 }
 
 .color-dot {
   width: 10px;
   height: 10px;
   border-radius: 50%;
+}
+
+.extra-badge {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #6c757d;
+  color: #fff;
+  font-size: 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
