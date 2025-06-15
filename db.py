@@ -52,3 +52,22 @@ def init_db():
     conn.commit()
     conn.close()
 
+
+def migrate_db():
+    """Upgrade existing tables to the latest schema."""
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    # Check existing columns in the habits table
+    cursor.execute('PRAGMA table_info(habits)')
+    columns = [row['name'] for row in cursor.fetchall()]
+
+    if 'priority' not in columns:
+        cursor.execute("ALTER TABLE habits ADD COLUMN priority TEXT NOT NULL DEFAULT 'low'")
+
+    if 'color' not in columns:
+        cursor.execute("ALTER TABLE habits ADD COLUMN color TEXT NOT NULL DEFAULT '#ffffff'")
+
+    conn.commit()
+    conn.close()
+

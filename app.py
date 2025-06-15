@@ -1,7 +1,7 @@
 from flask import Flask, render_template, g, request, redirect, url_for, session
 import sqlite3
 import os
-from db import init_db
+from db import init_db, migrate_db
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 
@@ -12,6 +12,7 @@ app.secret_key = os.environ.get("SECRET_KEY", "dev")
 
 with app.app_context():
     init_db()
+    migrate_db()
 
 
 def get_db():
