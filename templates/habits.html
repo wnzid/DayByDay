@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 {% block title %}Manage Habits{% endblock %}
 {% block content %}
-<h1 class="mb-4">Manage Habits</h1>
+<h1 class="mb-4 fw-semibold">Manage Habits</h1>
 <p>
   <a href="{{ url_for('add_habit') }}" class="btn btn-success">Add Habit</a>
   <a href="{{ url_for('index') }}" class="btn btn-secondary">Home</a>
 </p>
 {% set level_classes = {'low':'bg-success','medium':'bg-warning','high':'bg-danger'} %}
-<table class="table table-striped mt-3">
+<table class="table table-striped mt-3 shadow-sm">
   <thead>
     <tr><th>Name</th><th>Priority</th><th>Color</th><th>Actions</th></tr>
   </thead>
@@ -28,7 +28,7 @@
       </td>
     </tr>
     {% else %}
-    <tr><td colspan="4">No habits yet.</td></tr>
+    <tr><td colspan="4" class="text-muted">No habits yet.</td></tr>
     {% endfor %}
   </tbody>
 </table>
