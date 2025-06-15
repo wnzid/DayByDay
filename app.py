@@ -1,6 +1,7 @@
 from flask import Flask, render_template, g
 import sqlite3
 import os
+from db import init_db
 
 DATABASE = os.path.join(os.path.dirname(__file__), 'app.db')
 
@@ -21,20 +22,6 @@ def close_db(exception=None):
         db.close()
 
 
-def init_db():
-    db = get_db()
-    with app.open_resource('schema.sql') as f:
-        db.executescript(f.read().decode('utf8'))
-    db.commit()
-
-
-def migrate_db():
-    """Ensure the database schema is up to date."""
-    db = get_db()
-    columns = [row['name'] for row in db.execute('PRAGMA table_info(habits)')]
-    if 'color' not in columns:
-        db.execute("ALTER TABLE habits ADD COLUMN color TEXT NOT NULL DEFAULT '#ffffff'")
-        db.commit()
 
 
 @app.route('/')
@@ -45,10 +32,6 @@ def index():
 
 
 if __name__ == '__main__':
-    if not os.path.exists(DATABASE):
-        with app.app_context():
-            init_db()
-    else:
-        with app.app_context():
-            migrate_db()
+    with app.app_context():
+        init_db()
     app.run(debug=True)
