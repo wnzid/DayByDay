@@ -277,7 +277,12 @@ def complete():
 def track_day(year, month, day):
     db = get_db()
     date_str = f"{year:04d}-{month:02d}-{day:02d}"
+    now = datetime.now()
+    is_future = (year, month, day) > (now.year, now.month, now.day)
     if request.method == 'POST':
+        if is_future:
+            flash('Cannot track habits for a future date.', 'danger')
+            return redirect(url_for('track_day', year=year, month=month, day=day))
         selected = request.form.getlist('habit_ids')
         # Remove old records for this user and date
         db.execute(
@@ -322,6 +327,7 @@ def track_day(year, month, day):
         year=year,
         month=month,
         day=day,
+        is_future=is_future,
     )
 
 
