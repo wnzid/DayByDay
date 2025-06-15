@@ -1,4 +1,4 @@
-from flask import Flask, render_template, g, request, redirect, url_for, session
+from flask import Flask, render_template, g, request, redirect, url_for, session, flash
 import sqlite3
 import os
 from db import init_db, migrate_db
@@ -87,9 +87,11 @@ def register():
                 (username, generate_password_hash(password)),
             )
             db.commit()
+            flash('Account created. Please log in.', 'success')
+            return redirect(url_for('login'))
         except sqlite3.IntegrityError:
-            return render_template('register.html', error='Username already taken')
-        return redirect(url_for('login'))
+            flash('Username already taken', 'danger')
+            return render_template('register.html')
     return render_template('register.html')
 
 
@@ -105,14 +107,17 @@ def login():
         if user and check_password_hash(user['password'], password):
             session.clear()
             session['user_id'] = user['id']
+            flash('Logged in successfully.', 'success')
             return redirect(url_for('index'))
-        return render_template('login.html', error='Invalid username or password')
+        flash('Invalid username or password', 'danger')
+        return render_template('login.html')
     return render_template('login.html')
 
 
 @app.route('/logout')
 def logout():
     session.clear()
+    flash('You were logged out', 'info')
     return redirect(url_for('login'))
 
 
@@ -144,6 +149,7 @@ def add_habit():
             (session['user_id'], name, priority, color),
         )
         db.commit()
+        flash('Habit added', 'success')
         return redirect(url_for('manage_habits'))
     return render_template('habit_form.html', habit=None)
 
@@ -169,6 +175,7 @@ def edit_habit(habit_id):
             (name, priority, color, habit_id, session['user_id']),
         )
         db.commit()
+        flash('Habit updated', 'success')
         return redirect(url_for('manage_habits'))
     return render_template('habit_form.html', habit=habit)
 
@@ -182,6 +189,7 @@ def delete_habit(habit_id):
         (habit_id, session['user_id']),
     )
     db.commit()
+    flash('Habit deleted', 'success')
     return redirect(url_for('manage_habits'))
 
 
