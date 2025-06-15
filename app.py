@@ -343,4 +343,5 @@ def track_day(year, month, day):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Run the app on all network interfaces with a fixed port for Render
+    app.run(host='0.0.0.0', port=10000)
