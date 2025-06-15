@@ -1,10 +1,28 @@
 <!doctype html>
-<html lang="en">
+<html lang='en'>
 <head>
-    <meta charset="utf-8">
+    <meta charset='utf-8'>
     <title>Habit Tracker</title>
+    <link rel='stylesheet' href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Welcome to Habit Tracker</h1>
+    <h1>Habit Tracker</h1>
+    <div class='calendar'>
+        {% for day in range(1, 31) %}
+        <div>{{ day }}</div>
+        {% endfor %}
+    </div>
+
+    <div class='legend'>
+        <h3>Habits</h3>
+        {% for habit in habits %}
+        <div class='legend-item'>
+            <div class='legend-color' style='background-color: {{ habit['color'] }};'></div>
+            <span>{{ habit['name'] }}</span>
+        </div>
+        {% else %}
+        <p>No habits yet.</p>
+        {% endfor %}
+    </div>
 </body>
 </html>

@@ -30,7 +30,9 @@ def init_db():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    db = get_db()
+    habits = db.execute('SELECT name, color FROM habits').fetchall()
+    return render_template('index.html', habits=habits)
 
 
 if __name__ == '__main__':
