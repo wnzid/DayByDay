@@ -25,25 +25,23 @@
 </div>
 
 <!-- Calendar Grid -->
-{% for week in weeks %}
-  <div class="d-flex mb-2 text-center">
+<div class="calendar mb-2">
+  {% for week in weeks %}
     {% for day in week %}
       {% if day == 0 %}
-        <div class="flex-fill p-3"></div>
+        <div class="calendar-day"></div>
       {% else %}
-        <div class="calendar-cell flex-fill text-center border rounded shadow-sm p-3 bg-white">
+        <div class="calendar-day">
           <strong><a href="/track/{{ year }}/{{ month }}/{{ day }}">{{ day }}</a></strong>
-          {% if day_colors.get(day) %}
-            <div class="color-dots mt-2">
-              {% for color in day_colors[day] %}
-                <div class="color-dot" style="background-color: {{ color }};"></div>
-              {% endfor %}
-            </div>
-          {% endif %}
+          <div class="color-strip">
+            {% for color in day_colors.get(day, []) %}
+              <div class="color-dot" style="background-color: {{ color }};"></div>
+            {% endfor %}
+          </div>
         </div>
       {% endif %}
     {% endfor %}
-  </div>
-{% endfor %}
+  {% endfor %}
+</div>
 
 {% endblock %}
