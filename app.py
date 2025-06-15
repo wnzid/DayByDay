@@ -65,28 +65,66 @@ def get_next_color(db, user_id):
 
 
 
-
 @app.route('/')
 @login_required
 def index():
+    now = datetime.now()
+    return redirect(url_for('calendar_view', year=now.year, month=now.month))
+
+
+@app.route('/calendar/<int:year>/<int:month>')
+@login_required
+def calendar_view(year, month):
     db = get_db()
     habits = db.execute(
-        'SELECT name, color FROM habits WHERE user_id = ?',
+        'SELECT id, name, color FROM habits WHERE user_id = ?',
         (session['user_id'],)
     ).fetchall()
     now = datetime.now()
-    year = now.year
-    month = now.month
+    is_future = (year > now.year) or (year == now.year and month > now.month)
     cal = calendar.Calendar()
     weeks = cal.monthdayscalendar(year, month)
     month_name = calendar.month_name[month]
+    # navigation months
+    prev_month = month - 1
+    prev_year = year
+    if prev_month < 1:
+        prev_month = 12
+        prev_year -= 1
+    next_month = month + 1
+    next_year = year
+    if next_month > 12:
+        next_month = 1
+        next_year += 1
+    # completed logs for month
+    logs = db.execute(
+        """
+        SELECT habit_log.habit_id, habit_log.date
+        FROM habit_log
+        JOIN habits ON habit_log.habit_id = habits.id
+        WHERE habits.user_id = ?
+          AND strftime('%Y', habit_log.date) = ?
+          AND strftime('%m', habit_log.date) = ?
+        """,
+        (session['user_id'], str(year), f"{month:02d}")
+    ).fetchall()
+    completed = {f"{row['habit_id']}_{row['date']}" for row in logs}
     return render_template(
         'index.html',
         habits=habits,
         month_name=month_name,
         year=year,
+        month=month,
         weeks=weeks,
+        is_future=is_future,
+        prev_year=prev_year,
+        prev_month=prev_month,
+        next_year=next_year,
+        next_month=next_month,
+        completed=completed,
     )
+
+
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -205,6 +243,25 @@ def delete_habit(habit_id):
     db.commit()
     flash('Habit deleted', 'success')
     return redirect(url_for('manage_habits'))
+
+
+@app.route('/complete', methods=['POST'])
+@login_required
+def complete():
+    habit_id = int(request.form['habit_id'])
+    date_str = request.form['date']
+    db = get_db()
+    existing = db.execute(
+        'SELECT id FROM habit_log WHERE habit_id = ? AND date = ?',
+        (habit_id, date_str)
+    ).fetchone()
+    if existing:
+        db.execute('DELETE FROM habit_log WHERE id = ?', (existing['id'],))
+    else:
+        db.execute('INSERT INTO habit_log (habit_id, date) VALUES (?, ?)', (habit_id, date_str))
+    db.commit()
+    year, month, _ = [int(x) for x in date_str.split('-')]
+    return redirect(url_for('calendar_view', year=year, month=month))
 
 
 if __name__ == '__main__':
