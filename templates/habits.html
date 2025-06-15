@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Manage Habits</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Manage Habits</h1>
+    <p><a href="{{ url_for('add_habit') }}">Add Habit</a> | <a href="{{ url_for('index') }}">Home</a></p>
+    <table>
+        <tr><th>Name</th><th>Priority</th><th>Color</th><th>Actions</th></tr>
+        {% for habit in habits %}
+        <tr>
+            <td>{{ habit['name'] }}</td>
+            <td>{{ habit['priority'] }}</td>
+            <td>
+                <span class="legend-color" style="background-color: {{ habit['color'] }};"></span>
+                {{ habit['color'] }}
+            </td>
+            <td>
+                <a href="{{ url_for('edit_habit', habit_id=habit['id']) }}">Edit</a>
+                <form method="post" action="{{ url_for('delete_habit', habit_id=habit['id']) }}" style="display:inline;">
+                    <button type="submit" onclick="return confirm('Delete this habit?');">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4">No habits yet.</td></tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

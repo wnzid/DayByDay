@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>{% if habit %}Edit Habit{% else %}Add Habit{% endif %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>{% if habit %}Edit Habit{% else %}Add Habit{% endif %}</h1>
+    <form method="post">
+        <label>Name: <input type="text" name="name" value="{{ habit['name'] if habit else '' }}" required></label><br>
+        <label>Priority:
+            <select name="priority">
+                {% for level in ['low','medium','high'] %}
+                <option value="{{ level }}" {% if habit and habit['priority']==level %}selected{% endif %}>{{ level.capitalize() }}</option>
+                {% endfor %}
+            </select>
+        </label><br>
+        <label>Color: <input type="color" name="color" value="{{ habit['color'] if habit else '' }}"></label>
+        <small>Leave blank for automatic</small><br>
+        <input type="submit" value="{% if habit %}Update{% else %}Create{% endif %}">
+    </form>
+    <p><a href="{{ url_for('manage_habits') }}">Back</a></p>
+</body>
+</html>
