@@ -264,5 +264,58 @@ def complete():
     return redirect(url_for('calendar_view', year=year, month=month))
 
 
+@app.route('/track/<int:year>/<int:month>/<int:day>', methods=['GET', 'POST'])
+@login_required
+def track_day(year, month, day):
+    db = get_db()
+    date_str = f"{year:04d}-{month:02d}-{day:02d}"
+    if request.method == 'POST':
+        selected = request.form.getlist('habit_ids')
+        # Remove old records for this user and date
+        db.execute(
+            """
+            DELETE FROM habit_log
+            WHERE id IN (
+                SELECT habit_log.id FROM habit_log
+                JOIN habits ON habit_log.habit_id = habits.id
+                WHERE habits.user_id = ? AND habit_log.date = ?
+            )
+            """,
+            (session['user_id'], date_str),
+        )
+        # Insert new records
+        for hid in selected:
+            db.execute(
+                'INSERT INTO habit_log (habit_id, date) VALUES (?, ?)',
+                (int(hid), date_str),
+            )
+        db.commit()
+        return redirect(url_for('calendar_view', year=year, month=month))
+
+    habits = db.execute(
+        'SELECT id, name, color FROM habits WHERE user_id = ?',
+        (session['user_id'],),
+    ).fetchall()
+    logs = db.execute(
+        """
+        SELECT habit_log.habit_id
+        FROM habit_log
+        JOIN habits ON habit_log.habit_id = habits.id
+        WHERE habits.user_id = ? AND habit_log.date = ?
+        """,
+        (session['user_id'], date_str),
+    ).fetchall()
+    completed = {row['habit_id'] for row in logs}
+    return render_template(
+        'track_day.html',
+        habits=habits,
+        completed=completed,
+        date_str=date_str,
+        year=year,
+        month=month,
+        day=day,
+    )
+
+
 if __name__ == '__main__':
     app.run(debug=True)

@@ -32,7 +32,7 @@
         <div class="flex-fill p-3"></div>
       {% else %}
         <div class="calendar-cell flex-fill text-center border rounded shadow-sm p-3 bg-white">
-          <strong>{{ day }}</strong>
+          <strong><a href="{{ url_for('track_day', year=year, month=month, day=day) }}">{{ day }}</a></strong>
           {% for habit in habits %}
             {% set date_str = "%04d-%02d-%02d" % (year, month, day) %}
             <form method="post" action="{{ url_for('complete') }}" class="mt-1">
