@@ -83,9 +83,14 @@ def ensure_planner_table():
             user_id INTEGER NOT NULL,
             task TEXT NOT NULL,
             date DATE NOT NULL,
+            completed BOOLEAN NOT NULL DEFAULT FALSE,
             FOREIGN KEY (user_id) REFERENCES users(id)
         )
         """
+    )
+    # Ensure the completed column exists for old installations
+    cur.execute(
+        "ALTER TABLE planner_tasks ADD COLUMN IF NOT EXISTS completed BOOLEAN NOT NULL DEFAULT FALSE"
     )
     db.commit()
 
@@ -123,6 +128,24 @@ def planner_root():
     return redirect(url_for('planner_view', year=now.year, month=now.month))
 
 
+@app.route('/planner/add', methods=['POST'])
+@login_required
+def add_planner_task():
+    ensure_planner_table()
+    db = get_db()
+    task = request.form.get('task', '').strip()
+    date = request.form.get('date')
+    if task and date:
+        cur = db.cursor()
+        cur.execute(
+            'INSERT INTO planner_tasks (user_id, task, date) VALUES (%s, %s, %s)',
+            (session['user_id'], task, date),
+        )
+        db.commit()
+    year, month, _ = [int(x) for x in date.split('-')]
+    return redirect(url_for('planner_view', year=year, month=month))
+
+
 @app.route('/planner/<int:year>/<int:month>')
 @login_required
 def planner_view(year, month):
@@ -131,7 +154,7 @@ def planner_view(year, month):
     cur = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     cur.execute(
         """
-        SELECT id, task, date FROM planner_tasks
+        SELECT id, task, date, completed FROM planner_tasks
         WHERE user_id = %s
           AND EXTRACT(YEAR FROM date) = %s
           AND EXTRACT(MONTH FROM date) = %s
@@ -142,7 +165,11 @@ def planner_view(year, month):
     tasks_by_day = {}
     for row in rows:
         day = row['date'].day
-        tasks_by_day.setdefault(day, []).append(row['task'])
+        tasks_by_day.setdefault(day, []).append({
+            'id': row['id'],
+            'task': row['task'],
+            'completed': row['completed']
+        })
 
     cal = calendar.Calendar()
     weeks = cal.monthdayscalendar(year, month)
@@ -192,7 +219,7 @@ def planner_day(year, month, day):
 
     cur = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     cur.execute(
-        'SELECT id, task FROM planner_tasks WHERE user_id = %s AND date = %s',
+        'SELECT id, task, completed FROM planner_tasks WHERE user_id = %s AND date = %s',
         (session['user_id'], date_str),
     )
     tasks = cur.fetchall()
@@ -217,6 +244,27 @@ def delete_task(task_id):
         (task_id, session['user_id']),
     )
     db.commit()
+    return redirect(request.referrer or url_for('planner_root'))
+
+
+@app.route('/planner/toggle/<int:task_id>', methods=['POST'])
+@login_required
+def toggle_task(task_id):
+    ensure_planner_table()
+    db = get_db()
+    cur = db.cursor()
+    cur.execute(
+        'UPDATE planner_tasks SET completed = NOT completed WHERE id = %s AND user_id = %s',
+        (task_id, session['user_id'])
+    )
+    db.commit()
+    redirect_type = request.form.get('redirect')
+    if redirect_type == 'day':
+        # redirect back to the day view
+        cur.execute('SELECT date FROM planner_tasks WHERE id = %s', (task_id,))
+        date = cur.fetchone()[0]
+        year, month, day = date.year, date.month, date.day
+        return redirect(url_for('planner_day', year=year, month=month, day=day))
     return redirect(request.referrer or url_for('planner_root'))
 
 
