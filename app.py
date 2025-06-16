@@ -13,7 +13,8 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev")
 
 with app.app_context():
-    init_db()
+    if not os.path.exists(DATABASE):
+        init_db()
     migrate_db()
 
 
