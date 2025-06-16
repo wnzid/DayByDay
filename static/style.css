@@ -10,7 +10,7 @@
   --muted: #6c757d;
 }
 
-body.dark-mode {
+.dark-mode {
   --bg: #1f2937;
   --text: #f9fafb;
   --card-bg: #2d3748;
@@ -18,10 +18,12 @@ body.dark-mode {
   --muted: #9ca3af;
 }
 
+.dark-mode,
 body {
   font-family: 'Inter', 'Poppins', sans-serif;
   background-color: var(--bg);
   color: var(--text);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .navbar {
@@ -32,8 +34,12 @@ body {
   top: 0;
   z-index: 1020;
 }
-body.dark-mode .navbar {
+.dark-mode .navbar {
   background-color: rgba(30, 30, 30, 0.8) !important;
+  color: var(--text);
+}
+.dark-mode .navbar a {
+  color: var(--text) !important;
 }
 
 .navbar-brand {
@@ -92,9 +98,9 @@ body.dark-mode .navbar {
   border-radius: 8px;
 }
 
-body.dark-mode .modal-content,
-body.dark-mode .list-group-item,
-body.dark-mode .card {
+.dark-mode .modal-content,
+.dark-mode .list-group-item,
+.dark-mode .card {
   background-color: var(--card-bg);
   border-color: var(--border);
 }
@@ -113,6 +119,10 @@ body.dark-mode .card {
   font-weight: 600;
 }
 
+.dark-mode .table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
 .btn-primary {
   background-color: var(--primary);
   border-color: var(--primary);
@@ -123,8 +133,10 @@ body.dark-mode .card {
   border-color: var(--primary-hover);
 }
 
-body.dark-mode .btn-outline-secondary,
-body.dark-mode .btn-outline-primary {
+.dark-mode .btn-outline-secondary,
+.dark-mode .btn-outline-primary,
+.dark-mode .btn-outline-success,
+.dark-mode .btn-outline-danger {
   color: var(--muted);
   border-color: var(--border);
 }
@@ -169,19 +181,19 @@ a:visited {
   justify-content: center;
 }
 
-body.dark-mode .form-control,
-body.dark-mode .form-select {
+.dark-mode .form-control,
+.dark-mode .form-select {
   background-color: #374151;
   color: var(--text);
   border-color: var(--border);
 }
 
-body.dark-mode .form-check-input {
+.dark-mode .form-check-input {
   background-color: #4b5563;
   border-color: var(--border);
 }
 
-body.dark-mode .form-check-input:checked {
+.dark-mode .form-check-input:checked {
   background-color: var(--primary);
   border-color: var(--primary);
 }
