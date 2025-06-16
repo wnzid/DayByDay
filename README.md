@@ -1,6 +1,6 @@
 # DayByDay
 
-DayByDay is a Flask-based web application that combines a habit tracker and monthly planner. Create an account, manage your daily habits, and organize upcoming tasks in one place. Data is stored in a PostgreSQL database and the application includes a simple migration mechanism so your schema stays up to date.
+DayByDay is a Flask-based web application that combines a habit tracker and monthly planner. Create an account, manage your daily habits, and organize upcoming tasks in one place. Data is stored in a PostgreSQL database and the application includes a simple migration mechanism so that schema stays up to date.
 
 ## Features
 
