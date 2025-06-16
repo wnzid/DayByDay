@@ -1,6 +1,6 @@
-# Habit Tracker
+# DayByDay
 
-Habit Tracker is a Flask-based web application that helps you build and maintain good habits. Create an account, set up custom habits, and log your progress on an easy-to-use calendar interface. Data is stored in a lightweight SQLite database and the application includes a simple migration mechanism so your schema stays up to date.
+DayByDay is a Flask-based web application that combines a habit tracker and monthly planner. Create an account, manage your daily habits, and organize upcoming tasks in one place. Data is stored in a lightweight SQLite database and the application includes a simple migration mechanism so your schema stays up to date.
 
 ## Features
 
