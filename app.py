@@ -284,10 +284,18 @@ def edit_habit(habit_id):
 def delete_habit(habit_id):
     db = get_db()
     cur = db.cursor()
+    # Delete logs first
+    cur.execute(
+        'DELETE FROM habit_log WHERE habit_id = %s AND user_id = %s',
+        (habit_id, session['user_id'])
+    )
+
+    # Then delete habit
     cur.execute(
         'DELETE FROM habits WHERE id = %s AND user_id = %s',
-        (habit_id, session['user_id']),
+        (habit_id, session['user_id'])
     )
+
     db.commit()
     flash('Habit deleted', 'success')
     return redirect(url_for('manage_habits'))
