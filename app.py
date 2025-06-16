@@ -71,6 +71,27 @@ def index():
     return redirect(url_for('calendar_view', year=now.year, month=now.month))
 
 
+@app.route('/dashboard')
+def dashboard():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    return render_template('dashboard.html')
+
+
+@app.route('/habit-tracker')
+def habit_tracker():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    return redirect(url_for('index'))
+
+
+@app.route('/planner')
+def planner():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    return render_template('planner.html')
+
+
 @app.route('/calendar/<int:year>/<int:month>')
 @login_required
 def calendar_view(year, month):
@@ -181,7 +202,7 @@ def login():
             session.clear()
             session['user_id'] = user['id']
             flash('Logged in successfully.', 'success')
-            return redirect(url_for('index'))
+            return redirect(url_for('dashboard'))
         flash('Invalid username or password', 'danger')
         return render_template('login.html')
     return render_template('login.html')
