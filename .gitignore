@@ -1,9 +1,0 @@
-__pycache__/
-*.pyc
-instance/
-*.db
-*.sqlite
-.env
-venv/
-.gitignore
-.env.example
