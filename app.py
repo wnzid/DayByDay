@@ -7,20 +7,20 @@ from functools import wraps
 from datetime import datetime
 import calendar
 
-DATABASE = os.path.join(os.path.dirname(__file__), 'app.db')
+DB_PATH = os.path.join(os.path.dirname(__file__), 'app.db')
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev")
 
 with app.app_context():
-    if not os.path.exists(DATABASE):
+    if not os.path.exists(DB_PATH):
         init_db()
     migrate_db()
 
 
 def get_db():
     if 'db' not in g:
-        g.db = sqlite3.connect(DATABASE)
+        g.db = sqlite3.connect(DB_PATH)
         g.db.row_factory = sqlite3.Row
     return g.db
 
@@ -341,6 +341,13 @@ def track_day(year, month, day):
         day=day,
         is_future=is_future,
     )
+
+
+@app.route('/upload-db', methods=['POST'])
+def upload_db():
+    file = request.files['file']
+    file.save('app.db')
+    return 'Database uploaded'
 
 
 if __name__ == '__main__':
