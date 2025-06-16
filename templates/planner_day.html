@@ -14,7 +14,15 @@
         <ul class="list-group list-group-flush">
           {% for t in tasks %}
           <li class="list-group-item d-flex justify-content-between align-items-center">
-            {{ t['task'] }}
+            <div>
+              <form method="post" action="{{ url_for('toggle_task', task_id=t['id']) }}" class="d-inline">
+                <input type="hidden" name="redirect" value="day">
+                <button class="btn btn-sm {% if t['completed'] %}btn-success{% else %}btn-outline-secondary{% endif %}" type="submit">
+                  {% if t['completed'] %}<i class="bi bi-check-lg"></i>{% else %}<i class="bi bi-circle"></i>{% endif %}
+                </button>
+              </form>
+              {% if t['completed'] %}<s>{{ t['task'] }}</s>{% else %}{{ t['task'] }}{% endif %}
+            </div>
             <form method="post" action="{{ url_for('delete_task', task_id=t['id']) }}">
               <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
             </form>
