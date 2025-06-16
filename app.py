@@ -114,7 +114,7 @@ def calendar_view(year, month):
     # Map day number to list of habit dicts and sort by priority
     day_colors = {}
     for row in logs:
-        day = int(row['date'].split('-')[2])
+        day = row['date'].day
         entry = {
             'color': row['color'],
             'name': row['name'],
