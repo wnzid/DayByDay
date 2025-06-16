@@ -1,12 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --bg: #f3f4f6;
+  --text: #333;
+  --card-bg: #fff;
+}
+
+body.dark-mode {
+  --bg: #1f2937;
+  --text: #f9fafb;
+  --card-bg: #2d3748;
+}
+
 body {
-  font-family: 'Poppins', sans-serif;
-  background-color: #f5f7fb;
-  color: #333;
+  font-family: 'Inter', 'Poppins', sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
 }
 
 .navbar {
-  background-color: #ffffff !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  background-color: rgba(255, 255, 255, 0.8) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(6px);
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+}
+body.dark-mode .navbar {
+  background-color: rgba(30, 30, 30, 0.8) !important;
 }
 
 .navbar-brand {
@@ -24,9 +47,9 @@ body {
 }
 
 .calendar-day {
-  background-color: #ffffff;
+  background-color: var(--card-bg);
   border: 1px solid #e1e5ea;
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 12px;
   min-height: 100px;
   font-size: 0.8rem;
@@ -36,6 +59,7 @@ body {
   justify-content: space-between;
   text-align: right;
   cursor: pointer;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .legend {
@@ -59,11 +83,13 @@ body {
 
 .card {
   border: none;
+  background-color: var(--card-bg);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
 }
 
 .table {
-  background-color: #fff;
+  background-color: var(--card-bg);
 }
 
 .table th {
@@ -72,13 +98,13 @@ body {
 }
 
 .btn-primary {
-  background-color: #4e6ef2;
-  border-color: #4e6ef2;
+  background-color: var(--primary);
+  border-color: var(--primary);
 }
 
 .btn-primary:hover {
-  background-color: #3e5ce8;
-  border-color: #3e5ce8;
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
 }
 a:link,
 a:visited {
@@ -87,8 +113,8 @@ a:visited {
 }
 
 .calendar-day:hover {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  background-color: #f0f0f0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.03);
 }
 
 /* Colored dots for calendar completion indicators */
