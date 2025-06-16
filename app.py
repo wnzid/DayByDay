@@ -111,7 +111,8 @@ def dashboard():
 def habit_tracker():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    return redirect(url_for('index'))
+    now = datetime.now()
+    return redirect(url_for('calendar_view', year=now.year, month=now.month))
 
 
 @app.route('/planner')
