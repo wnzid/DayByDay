@@ -342,14 +342,6 @@ def track_day(year, month, day):
         is_future=is_future,
     )
 
-
-@app.route('/upload-db', methods=['POST'])
-def upload_db():
-    file = request.files['file']
-    file.save('app.db')
-    return 'Database uploaded'
-
-
 if __name__ == '__main__':
     # Run the app on all network interfaces with a fixed port for Render
     app.run(host='0.0.0.0', port=10000)
