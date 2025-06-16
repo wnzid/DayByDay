@@ -1,27 +1,20 @@
 from flask import Flask, render_template, g, request, redirect, url_for, session, flash
-import sqlite3
 import os
-from db import init_db, migrate_db
+import psycopg2
+import psycopg2.extras
+from db import get_connection
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from datetime import datetime
 import calendar
 
-DB_PATH = os.path.join(os.path.dirname(__file__), 'app.db')
-
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev")
-
-with app.app_context():
-    if not os.path.exists(DB_PATH):
-        init_db()
-    migrate_db()
 
 
 def get_db():
     if 'db' not in g:
-        g.db = sqlite3.connect(DB_PATH)
-        g.db.row_factory = sqlite3.Row
+        g.db = get_connection()
     return g.db
 
 
@@ -56,10 +49,12 @@ PRIORITY_RANK = {"High": 1, "Medium": 2, "Low": 3}
 
 def get_next_color(db, user_id):
     """Return the first color from the palette that isn't used by the user."""
-    rows = db.execute(
-        "SELECT color FROM habits WHERE user_id = ?",
+    cur = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute(
+        "SELECT color FROM habits WHERE user_id = %s",
         (user_id,),
-    ).fetchall()
+    )
+    rows = cur.fetchall()
     used = {row["color"] for row in rows}
     for color in COLOR_PALETTE:
         if color not in used:
@@ -80,10 +75,12 @@ def index():
 @login_required
 def calendar_view(year, month):
     db = get_db()
-    habits = db.execute(
-        'SELECT id, name, color FROM habits WHERE user_id = ?',
+    cur = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute(
+        'SELECT id, name, color FROM habits WHERE user_id = %s',
         (session['user_id'],)
-    ).fetchall()
+    )
+    habits = cur.fetchall()
     now = datetime.now()
     is_future = (year > now.year) or (year == now.year and month > now.month)
     cal = calendar.Calendar()
@@ -101,17 +98,18 @@ def calendar_view(year, month):
         next_month = 1
         next_year += 1
     # completed logs for month with associated habit info
-    logs = db.execute(
+    cur.execute(
         """
         SELECT habit_log.habit_id, habits.color, habits.name, habits.priority, habit_log.date
         FROM habit_log
         JOIN habits ON habit_log.habit_id = habits.id
-        WHERE habits.user_id = ?
-          AND strftime('%Y', habit_log.date) = ?
-          AND strftime('%m', habit_log.date) = ?
+        WHERE habits.user_id = %s
+          AND EXTRACT(YEAR FROM habit_log.date) = %s
+          AND EXTRACT(MONTH FROM habit_log.date) = %s
         """,
-        (session['user_id'], str(year), f"{month:02d}")
-    ).fetchall()
+        (session['user_id'], year, month)
+    )
+    logs = cur.fetchall()
 
     # Map day number to list of habit dicts and sort by priority
     day_colors = {}
@@ -154,14 +152,15 @@ def register():
         password = request.form['password']
         db = get_db()
         try:
-            db.execute(
-                'INSERT INTO users (username, password) VALUES (?, ?)',
+            cur = db.cursor()
+            cur.execute(
+                'INSERT INTO users (username, password) VALUES (%s, %s)',
                 (username, generate_password_hash(password)),
             )
             db.commit()
             flash('Account created. Please log in.', 'success')
             return redirect(url_for('login'))
-        except sqlite3.IntegrityError:
+        except psycopg2.IntegrityError:
             flash('Username already taken', 'danger')
             return render_template('register.html')
     return render_template('register.html')
@@ -173,9 +172,11 @@ def login():
         username = request.form['username']
         password = request.form['password']
         db = get_db()
-        user = db.execute(
-            'SELECT id, password FROM users WHERE username = ?', (username,)
-        ).fetchone()
+        cur = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cur.execute(
+            'SELECT id, password FROM users WHERE username = %s', (username,)
+        )
+        user = cur.fetchone()
         if user and check_password_hash(user['password'], password):
             session.clear()
             session['user_id'] = user['id']
@@ -199,10 +200,12 @@ def logout():
 @login_required
 def manage_habits():
     db = get_db()
-    habits = db.execute(
-        'SELECT id, name, priority, color FROM habits WHERE user_id = ?',
+    cur = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute(
+        'SELECT id, name, priority, color FROM habits WHERE user_id = %s',
         (session['user_id'],),
-    ).fetchall()
+    )
+    habits = cur.fetchall()
     return render_template('habits.html', habits=habits)
 
 
@@ -216,8 +219,9 @@ def add_habit():
         color = request.form.get('color', '').strip()
         if not color:
             color = get_next_color(db, session['user_id'])
-        db.execute(
-            'INSERT INTO habits (user_id, name, priority, color) VALUES (?, ?, ?, ?)',
+        cur = db.cursor()
+        cur.execute(
+            'INSERT INTO habits (user_id, name, priority, color) VALUES (%s, %s, %s, %s)',
             (session['user_id'], name, priority, color),
         )
         db.commit()
@@ -230,10 +234,12 @@ def add_habit():
 @login_required
 def edit_habit(habit_id):
     db = get_db()
-    habit = db.execute(
-        'SELECT * FROM habits WHERE id = ? AND user_id = ?',
+    cur = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute(
+        'SELECT * FROM habits WHERE id = %s AND user_id = %s',
         (habit_id, session['user_id']),
-    ).fetchone()
+    )
+    habit = cur.fetchone()
     if habit is None:
         return redirect(url_for('manage_habits'))
     if request.method == 'POST':
@@ -242,8 +248,8 @@ def edit_habit(habit_id):
         color = request.form.get('color', '').strip()
         if not color:
             color = get_next_color(db, session['user_id'])
-        db.execute(
-            'UPDATE habits SET name = ?, priority = ?, color = ? WHERE id = ? AND user_id = ?',
+        cur.execute(
+            'UPDATE habits SET name = %s, priority = %s, color = %s WHERE id = %s AND user_id = %s',
             (name, priority, color, habit_id, session['user_id']),
         )
         db.commit()
@@ -256,8 +262,9 @@ def edit_habit(habit_id):
 @login_required
 def delete_habit(habit_id):
     db = get_db()
-    db.execute(
-        'DELETE FROM habits WHERE id = ? AND user_id = ?',
+    cur = db.cursor()
+    cur.execute(
+        'DELETE FROM habits WHERE id = %s AND user_id = %s',
         (habit_id, session['user_id']),
     )
     db.commit()
@@ -271,14 +278,16 @@ def complete():
     habit_id = int(request.form['habit_id'])
     date_str = request.form['date']
     db = get_db()
-    existing = db.execute(
-        'SELECT id FROM habit_log WHERE habit_id = ? AND date = ?',
+    cur = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute(
+        'SELECT id FROM habit_log WHERE habit_id = %s AND date = %s',
         (habit_id, date_str)
-    ).fetchone()
+    )
+    existing = cur.fetchone()
     if existing:
-        db.execute('DELETE FROM habit_log WHERE id = ?', (existing['id'],))
+        cur.execute('DELETE FROM habit_log WHERE id = %s', (existing['id'],))
     else:
-        db.execute('INSERT INTO habit_log (habit_id, date) VALUES (?, ?)', (habit_id, date_str))
+        cur.execute('INSERT INTO habit_log (habit_id, date) VALUES (%s, %s)', (habit_id, date_str))
     db.commit()
     year, month, _ = [int(x) for x in date_str.split('-')]
     return redirect(url_for('calendar_view', year=year, month=month))
@@ -297,39 +306,43 @@ def track_day(year, month, day):
             return redirect(url_for('track_day', year=year, month=month, day=day))
         selected = request.form.getlist('habit_ids')
         # Remove old records for this user and date
-        db.execute(
+        cur = db.cursor()
+        cur.execute(
             """
             DELETE FROM habit_log
             WHERE id IN (
                 SELECT habit_log.id FROM habit_log
                 JOIN habits ON habit_log.habit_id = habits.id
-                WHERE habits.user_id = ? AND habit_log.date = ?
+                WHERE habits.user_id = %s AND habit_log.date = %s
             )
             """,
             (session['user_id'], date_str),
         )
         # Insert new records
         for hid in selected:
-            db.execute(
-                'INSERT INTO habit_log (habit_id, date) VALUES (?, ?)',
+            cur.execute(
+                'INSERT INTO habit_log (habit_id, date) VALUES (%s, %s)',
                 (int(hid), date_str),
             )
         db.commit()
         return redirect(url_for('calendar_view', year=year, month=month))
 
-    habits = db.execute(
-        'SELECT id, name, color FROM habits WHERE user_id = ?',
+    cur = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute(
+        'SELECT id, name, color FROM habits WHERE user_id = %s',
         (session['user_id'],),
-    ).fetchall()
-    logs = db.execute(
+    )
+    habits = cur.fetchall()
+    cur.execute(
         """
         SELECT habit_log.habit_id
         FROM habit_log
         JOIN habits ON habit_log.habit_id = habits.id
-        WHERE habits.user_id = ? AND habit_log.date = ?
+        WHERE habits.user_id = %s AND habit_log.date = %s
         """,
         (session['user_id'], date_str),
-    ).fetchall()
+    )
+    logs = cur.fetchall()
     completed = {row['habit_id'] for row in logs}
     return render_template(
         'track_day.html',
