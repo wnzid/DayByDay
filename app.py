@@ -74,10 +74,12 @@ def get_next_color(db, user_id):
 
 
 @app.route('/')
-@login_required
 def index():
-    now = datetime.now()
-    return redirect(url_for('calendar_view', year=now.year, month=now.month))
+    """Show welcome page or redirect logged-in users to the calendar."""
+    if 'user_id' in session:
+        now = datetime.now()
+        return redirect(url_for('calendar_view', year=now.year, month=now.month))
+    return render_template('welcome.html')
 
 
 @app.route('/dashboard')
