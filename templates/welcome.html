@@ -1,11 +1,5 @@
 {% extends "base.html" %}
-{% block navbar %}
-<nav class="navbar">
-  <div class="container d-flex justify-content-center">
-    <img src="{{ url_for('static', filename='svg/dashlogo.svg') }}" alt="DayByDay logo" class="navbar-logo" style="height:100px;">
-  </div>
-</nav>
-{% endblock %}
+{%- block navbar %}{% endblock %}
 {% block content %}
 <div class="text-center mt-5">
   <img src="{{ url_for('static', filename='svg/dashlogo.svg') }}" class="logo" alt="DayByDay logo">
