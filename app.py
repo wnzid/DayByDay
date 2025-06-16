@@ -8,6 +8,15 @@ from functools import wraps
 from datetime import datetime
 import calendar
 
+# Determine if we're running in development mode
+IS_DEV = os.environ.get('ENV') != 'PRODUCTION'
+
+# Choose the appropriate database connection string
+if IS_DEV:
+    DATABASE_URL = "postgresql://postgres:yourpassword@localhost:5432/habit_tracker_dev"
+else:
+    DATABASE_URL = os.environ.get('DATABASE_URL')
+
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev")
 
