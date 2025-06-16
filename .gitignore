@@ -5,3 +5,5 @@ instance/
 *.sqlite
 .env
 venv/
+.gitignore
+.env.example
