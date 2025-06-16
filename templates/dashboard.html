@@ -2,6 +2,16 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 {% endblock %}
+{% block navbar %}
+  <nav class="navbar navbar-expand-lg">
+      <div class="container">
+        <span class="navbar-brand">DayByDay</span>
+        <div>
+          <a href="{{ url_for('logout') }}" class="btn btn-outline-secondary">Logout</a>
+        </div>
+      </div>
+  </nav>
+{% endblock %}
 {% block content %}
 <div class="d-flex flex-column align-items-center justify-content-center dashboard-gap">
     <a href="{{ url_for('habit_tracker') }}" class="btn btn-primary btn-lg mb-3">Habit Tracker</a>
