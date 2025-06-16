@@ -95,6 +95,16 @@ def ensure_planner_table():
     db.commit()
 
 
+def ensure_display_name_column():
+    """Ensure users table has a display_name column."""
+    db = get_db()
+    cur = db.cursor()
+    cur.execute(
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS display_name TEXT"
+    )
+    db.commit()
+
+
 
 @app.route('/')
 def index():
@@ -348,11 +358,12 @@ def register():
         username = request.form['username']
         password = request.form['password']
         db = get_db()
+        ensure_display_name_column()
         try:
             cur = db.cursor()
             cur.execute(
-                'INSERT INTO users (username, password) VALUES (%s, %s)',
-                (username, generate_password_hash(password)),
+                'INSERT INTO users (username, password, display_name) VALUES (%s, %s, %s)',
+                (username, generate_password_hash(password), username),
             )
             db.commit()
             flash('Account created. Please log in.', 'success')
@@ -389,6 +400,55 @@ def logout():
     session.clear()
     flash('You were logged out', 'info')
     return redirect(url_for('login'))
+
+
+@app.route('/account', methods=['GET', 'POST'])
+@login_required
+def account_settings():
+    ensure_display_name_column()
+    db = get_db()
+    cur = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute('SELECT display_name, password FROM users WHERE id = %s', (session['user_id'],))
+    user = cur.fetchone()
+    if request.method == 'POST':
+        display_name = request.form.get('display_name', '').strip()
+        current = request.form.get('current_password', '')
+        new_pw = request.form.get('new_password', '')
+        if display_name != user.get('display_name'):
+            cur.execute('UPDATE users SET display_name = %s WHERE id = %s', (display_name, session['user_id']))
+        if new_pw:
+            if check_password_hash(user['password'], current):
+                cur.execute('UPDATE users SET password = %s WHERE id = %s', (generate_password_hash(new_pw), session['user_id']))
+            else:
+                flash('Incorrect current password', 'danger')
+                db.commit()
+                return redirect(url_for('account_settings'))
+        db.commit()
+        flash('Account updated', 'success')
+        return redirect(url_for('account_settings'))
+    return render_template('account_settings.html', user=user)
+
+
+@app.route('/account/delete', methods=['POST'])
+@login_required
+def delete_account():
+    ensure_display_name_column()
+    password = request.form.get('password', '')
+    db = get_db()
+    cur = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute('SELECT password FROM users WHERE id = %s', (session['user_id'],))
+    user = cur.fetchone()
+    if not user or not check_password_hash(user['password'], password):
+        flash('Incorrect password. Account not deleted.', 'danger')
+        return redirect(url_for('account_settings'))
+    cur.execute('DELETE FROM habit_log WHERE habit_id IN (SELECT id FROM habits WHERE user_id = %s)', (session['user_id'],))
+    cur.execute('DELETE FROM habits WHERE user_id = %s', (session['user_id'],))
+    cur.execute('DELETE FROM planner_tasks WHERE user_id = %s', (session['user_id'],))
+    cur.execute('DELETE FROM users WHERE id = %s', (session['user_id'],))
+    db.commit()
+    session.clear()
+    flash('Account deleted', 'info')
+    return redirect(url_for('index'))
 
 
 # ---------------- Habit management -----------------

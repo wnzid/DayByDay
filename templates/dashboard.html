@@ -15,6 +15,7 @@
 {% block content %}
 <div class="d-flex flex-column align-items-center justify-content-center dashboard-gap">
     <a href="{{ url_for('habit_tracker') }}" class="btn btn-primary btn-lg mb-3">Habit Tracker</a>
-    <a href="{{ url_for('planner_root') }}" class="btn btn-secondary btn-lg">Monthly Planner</a>
-</div>
+    <a href="{{ url_for('planner_root') }}" class="btn btn-secondary btn-lg mb-3">Monthly Planner</a>
+    <a href="{{ url_for('account_settings') }}" class="btn btn-outline-secondary btn-lg">Account Settings</a>
+  </div>
 {% endblock %}
