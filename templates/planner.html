@@ -1,5 +1,38 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Monthly Planner</h2>
-<p>This page is under construction.</p>
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <a class="btn btn-outline-primary" href="{{ url_for('planner_view', year=prev_year, month=prev_month) }}">Prev</a>
+  <h2 class="mb-0">{{ month_name }} {{ year }}</h2>
+  <a class="btn btn-outline-primary" href="{{ url_for('planner_view', year=next_year, month=next_month) }}">Next</a>
+</div>
+
+<div class="d-flex mb-2 text-center fw-semibold">
+  {% for day_name in ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'] %}
+    <div class="flex-fill">{{ day_name }}</div>
+  {% endfor %}
+</div>
+
+<div class="calendar mb-2">
+  {% for week in weeks %}
+    {% for day in week %}
+      {% if day == 0 %}
+        <div class="calendar-day"></div>
+      {% else %}
+        <a href="{{ url_for('planner_day', year=year, month=month, day=day) }}" style="text-decoration: none; color: inherit;">
+          <div class="calendar-day">
+            <strong>{{ day }}</strong>
+            <ul class="planner-list">
+              {% for t in tasks_by_day.get(day, [])[:3] %}
+                <li>{{ t }}</li>
+              {% endfor %}
+            </ul>
+            {% if tasks_by_day.get(day, [])|length > 3 %}
+              <div class="extra-badge">+{{ tasks_by_day.get(day, [])|length - 3 }}</div>
+            {% endif %}
+          </div>
+        </a>
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
+</div>
 {% endblock %}

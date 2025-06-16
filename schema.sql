@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS habits;
 DROP TABLE IF EXISTS habit_log;
+DROP TABLE IF EXISTS planner_tasks;
 
 CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -22,4 +23,12 @@ CREATE TABLE habit_log (
     habit_id INTEGER NOT NULL,
     date TEXT NOT NULL,
     FOREIGN KEY(habit_id) REFERENCES habits(id)
+);
+
+CREATE TABLE planner_tasks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    task TEXT NOT NULL,
+    date TEXT NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES users(id)
 );

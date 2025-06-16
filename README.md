@@ -7,6 +7,7 @@ Habit Tracker is a Flask-based web application that helps you build and maintain
 - **User Accounts** – Register, log in and manage your own habit list
 - **Calendar View** – Visualize your progress with a monthly calendar
 - **Habit Management** – Add, edit and delete habits with priority levels and custom colors
+- **Monthly Planner** – Organize daily tasks alongside your habit tracking
 - **Automatic Migrations** – The database schema is upgraded automatically on launch
 
 Try the hosted version here: [https://habit-tracker-1sq5.onrender.com](https://habit-tracker-1sq5.onrender.com).
