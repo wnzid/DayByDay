@@ -1,11 +1,13 @@
 {% extends "base.html" %}
 {% block navbar %} {% endblock %}
 {% block content %}
-<div class="d-flex flex-column align-items-center justify-content-center" style="height:60vh;">
+<div class="d-flex flex-column align-items-center justify-content-center text-center" style="height:60vh;">
   <img src="{{ url_for('static', filename='svg/dashlogo.svg') }}" class="logo" alt="DayByDay logo">
   <h1 class="mb-4">Welcome to DayByDay</h1>
   <p class="mb-4">Track your habits and plan your month.</p>
-  <a href="{{ url_for('login') }}" class="btn btn-primary me-2">Login</a>
-  <a href="{{ url_for('register') }}" class="btn btn-success">Register</a>
+  <div class="d-flex gap-3">
+    <a href="{{ url_for('login') }}" class="btn btn-primary">Login</a>
+    <a href="{{ url_for('register') }}" class="btn btn-success">Register</a>
+  </div>
 </div>
 {% endblock %}
