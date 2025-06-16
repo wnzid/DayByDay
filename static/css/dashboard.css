@@ -6,3 +6,26 @@
     align-items: center;
     gap: 20px;
 }
+
+.calendar-day {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+
+    width: 100px;
+    height: 100px;
+    padding: 8px;
+    margin: 2px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+
+    font-size: 14px;
+    overflow: hidden;
+    overflow-y: auto;
+
+    word-break: break-word;
+    white-space: normal;
+    box-sizing: border-box;
+    background-color: #fff;
+}
