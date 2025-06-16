@@ -355,6 +355,42 @@ def track_day(year, month, day):
         is_future=is_future,
     )
 
+@app.route("/init-pg-db")
+def init_pg_db():
+    db = get_connection()
+    cur = db.cursor()
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            username TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL
+        );
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS habits (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER,
+            name TEXT NOT NULL,
+            color TEXT,
+            priority TEXT,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        );
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS habit_log (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER,
+            habit_id INTEGER,
+            date DATE,
+            FOREIGN KEY (user_id) REFERENCES users(id),
+            FOREIGN KEY (habit_id) REFERENCES habits(id)
+        );
+    """)
+    db.commit()
+    cur.close()
+    db.close()
+    return "PostgreSQL tables created."
+
 if __name__ == '__main__':
     # Run the app on all network interfaces with a fixed port for Render
     app.run(host='0.0.0.0', port=10000)
