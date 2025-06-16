@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+{% block content %}
+<div class="d-flex flex-column align-items-center justify-content-center dashboard-gap">
+    <a href="{{ url_for('habit_tracker') }}" class="btn btn-primary btn-lg mb-3">Habit Tracker</a>
+    <a href="{{ url_for('planner') }}" class="btn btn-secondary btn-lg">Monthly Planner</a>
+</div>
+{% endblock %}
