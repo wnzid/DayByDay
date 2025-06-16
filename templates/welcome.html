@@ -1,16 +1,8 @@
 {% extends "base.html" %}
-{% block navbar %}
-<nav class="navbar">
-  <div class="container d-flex justify-content-center">
-    <img src="{{ url_for('static', filename='svg/dashlogo.svg') }}" alt="DayByDay logo" class="navbar-logo" style="height:100px;">
-  </div>
-</nav>
-{% endblock %}
+
 {% block content %}
 <div class="text-center mt-5">
-  <div class="center-logo-container">
-    <img src="{{ url_for('static', filename='svg/dashlogo.svg') }}" alt="DayByDay Logo" class="center-logo">
-  </div>
+  <img src="{{ url_for('static', filename='svg/dashlogo.svg') }}" class="logo" alt="DayByDay logo">
   <h1 class="mb-4">Welcome to DayByDay</h1>
   <p class="mb-4">Track your habits and plan your month.</p>
   <a href="{{ url_for('login') }}" class="btn btn-primary me-2">Login</a>
