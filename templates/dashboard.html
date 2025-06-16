@@ -5,8 +5,10 @@
 {% block navbar %}
   <nav class="navbar navbar-expand-lg">
       <div class="container">
-        <span class="navbar-brand">DayByDay</span>
-        <div>
+        <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+          <img src="{{ url_for('static', filename='svg/dashlogo.svg') }}" alt="DayByDay logo" class="navbar-logo">
+        </a>
+        <div class="ms-auto">
           <a href="{{ url_for('logout') }}" class="btn btn-outline-secondary">Logout</a>
         </div>
       </div>

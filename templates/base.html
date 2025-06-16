@@ -20,7 +20,9 @@
   {% block navbar %}
   <nav class="navbar navbar-expand-lg">
       <div class="container">
-        <a class="navbar-brand" href="/">DayByDay</a>
+        <a class="navbar-brand" href="/">
+          <img src="{{ url_for('static', filename='svg/dashlogo.svg') }}" alt="DayByDay logo" class="navbar-logo">
+        </a>
         <div>
           {% if session.get('user_id') %}
             <a href="/habits" class="btn btn-outline-primary me-2">Manage Habits</a>
