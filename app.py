@@ -13,7 +13,7 @@ IS_DEV = os.environ.get('ENV') != 'PRODUCTION'
 
 # Choose the appropriate database connection string
 if IS_DEV:
-    DATABASE_URL = "postgresql://postgres:yourpassword@localhost:5432/habit_tracker_dev"
+    DATABASE_URL = "postgresql://postgres:nahid123@localhost:5432/habit_tracker_dev"
 else:
     DATABASE_URL = os.environ.get('DATABASE_URL')
 
