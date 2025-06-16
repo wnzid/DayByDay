@@ -72,6 +72,24 @@ def get_next_color(db, user_id):
     return COLOR_PALETTE[0]
 
 
+def ensure_planner_table():
+    """Create planner_tasks table if it does not exist."""
+    db = get_db()
+    cur = db.cursor()
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS planner_tasks (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL,
+            task TEXT NOT NULL,
+            date DATE NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        )
+        """
+    )
+    db.commit()
+
+
 
 @app.route('/')
 def index():
@@ -97,10 +115,108 @@ def habit_tracker():
 
 
 @app.route('/planner')
-def planner():
+def planner_root():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    return render_template('planner.html')
+    now = datetime.now()
+    return redirect(url_for('planner_view', year=now.year, month=now.month))
+
+
+@app.route('/planner/<int:year>/<int:month>')
+@login_required
+def planner_view(year, month):
+    ensure_planner_table()
+    db = get_db()
+    cur = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute(
+        """
+        SELECT id, task, date FROM planner_tasks
+        WHERE user_id = %s
+          AND EXTRACT(YEAR FROM date) = %s
+          AND EXTRACT(MONTH FROM date) = %s
+        """,
+        (session['user_id'], year, month),
+    )
+    rows = cur.fetchall()
+    tasks_by_day = {}
+    for row in rows:
+        day = row['date'].day
+        tasks_by_day.setdefault(day, []).append(row['task'])
+
+    cal = calendar.Calendar()
+    weeks = cal.monthdayscalendar(year, month)
+    month_name = calendar.month_name[month]
+
+    prev_month = month - 1
+    prev_year = year
+    if prev_month < 1:
+        prev_month = 12
+        prev_year -= 1
+    next_month = month + 1
+    next_year = year
+    if next_month > 12:
+        next_month = 1
+        next_year += 1
+
+    return render_template(
+        'planner.html',
+        month_name=month_name,
+        year=year,
+        month=month,
+        weeks=weeks,
+        prev_year=prev_year,
+        prev_month=prev_month,
+        next_year=next_year,
+        next_month=next_month,
+        tasks_by_day=tasks_by_day,
+    )
+
+
+@app.route('/planner/<int:year>/<int:month>/<int:day>', methods=['GET', 'POST'])
+@login_required
+def planner_day(year, month, day):
+    ensure_planner_table()
+    db = get_db()
+    date_str = f"{year:04d}-{month:02d}-{day:02d}"
+    if request.method == 'POST':
+        task = request.form.get('task', '').strip()
+        if task:
+            cur = db.cursor()
+            cur.execute(
+                'INSERT INTO planner_tasks (user_id, task, date) VALUES (%s, %s, %s)',
+                (session['user_id'], task, date_str),
+            )
+            db.commit()
+        return redirect(url_for('planner_day', year=year, month=month, day=day))
+
+    cur = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute(
+        'SELECT id, task FROM planner_tasks WHERE user_id = %s AND date = %s',
+        (session['user_id'], date_str),
+    )
+    tasks = cur.fetchall()
+    return render_template(
+        'planner_day.html',
+        tasks=tasks,
+        date_str=date_str,
+        year=year,
+        month=month,
+        day=day,
+    )
+
+
+@app.route('/planner/delete/<int:task_id>', methods=['POST'])
+@login_required
+def delete_task(task_id):
+    ensure_planner_table()
+    db = get_db()
+    cur = db.cursor()
+    cur.execute(
+        'DELETE FROM planner_tasks WHERE id = %s AND user_id = %s',
+        (task_id, session['user_id']),
+    )
+    db.commit()
+    return redirect(request.referrer or url_for('planner_root'))
 
 
 @app.route('/calendar/<int:year>/<int:month>')
