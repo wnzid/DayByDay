@@ -16,7 +16,6 @@
 {% endblock %}
 {% block content %}
 <div class="d-flex flex-column align-items-center justify-content-center dashboard-gap">
-    <img src="{{ url_for('static', filename='svg/dashlogo.svg') }}" class="logo" alt="DayByDay logo">
     <a href="{{ url_for('habit_tracker') }}" class="btn btn-primary btn-lg mb-3">Habit Tracker</a>
     <a href="{{ url_for('planner_root') }}" class="btn btn-secondary btn-lg">Monthly Planner</a>
 </div>
