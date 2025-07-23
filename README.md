@@ -10,7 +10,7 @@ DayByDay is a Flask-based web application that combines a habit tracker and mont
 - **Monthly Planner** – Organize daily tasks alongside your habit tracking
 - **Automatic Migrations** – The database schema is upgraded automatically on launch
 
-Try the hosted version here: [https://habit-tracker-1sq5.onrender.com](https://habit-tracker-1sq5.onrender.com).
+
 
 ## Getting Started
 
