@@ -1,6 +1,6 @@
 # DayByDay
 
-DayByDay is a Flask-based web application that combines a habit tracker and monthly planner. Create an account, manage your daily habits, and organize upcoming tasks in one place. Data is stored in a PostgreSQL database and the application includes a simple migration mechanism so that schema stays up to date.
+DayByDay is a Flask-based web application that combines a habit tracker and monthly planner. Create an account, manage your daily habits, and organize upcoming tasks in one place. Data is stored in a MongoDB database.
 
 ## Features
 
@@ -25,7 +25,7 @@ Follow the steps below if you want to run the application locally.
    pip install -r requirements.txt
    ```
 
-3. Copy `.env.example` to `.env` and edit `DATABASE_URL` with your PostgreSQL connection string. Set `SECRET_KEY` to any random value.
+3. Copy `.env.example` to `.env` and edit `MONGO_URI` with your MongoDB connection string. Set `SECRET_KEY` to any random value.
 
 ### Running the Application
 
@@ -35,13 +35,7 @@ Start the development server with:
 python app.py
 ```
 
-Ensure your PostgreSQL database is reachable via `DATABASE_URL`. If this is a new database run:
-
-```bash
-psql "$DATABASE_URL" -f schema.sql
-```
-
-This creates the initial tables used by the app.
+Ensure your MongoDB database is reachable via `MONGO_URI`.
 
 ### Deployment
 
