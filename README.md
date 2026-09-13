@@ -1,55 +1,68 @@
+<div align="center">
+
 # DayByDay
 
-DayByDay is a Flask-based web application that combines a habit tracker and monthly planner. Create an account, manage your daily habits, and organize upcoming tasks in one place. Data is stored in a MongoDB database.
+**Habit tracking and monthly planning in one focused workspace.**
+
+`Flask` · `MongoDB` · `Jinja` · `Bootstrap`
+
+</div>
+
+DayByDay combines recurring habits with a day-by-day planner. Each account owns its habits, completion history, and scheduled tasks, with monthly views that keep progress and upcoming work in the same context.
 
 ## Features
 
-- **User Accounts** – Register, log in and manage your own habit list
-- **Calendar View** – Visualize your progress with a monthly calendar
-- **Habit Management** – Add, edit and delete habits with priority levels and custom colors
-- **Monthly Planner** – Organize daily tasks alongside your habit tracking
-- **Automatic Migrations** – The database schema is upgraded automatically on launch
+- Registration, sign-in, account editing, and account deletion
+- Habit creation, editing, priority, color, and removal
+- Daily completion tracking
+- Monthly habit calendar
+- Planner tasks with completion toggles and day-level views
+- User-scoped MongoDB records
+- Server-rendered responsive interface
 
+## Local setup
 
+Python 3.10 or newer and a reachable MongoDB instance are required.
 
-## Getting Started
+```bash
+python -m venv .venv
+# Windows: .venv\Scripts\activate
+# macOS/Linux: source .venv/bin/activate
+python -m pip install -r requirements.txt
+```
 
-Follow the steps below if you want to run the application locally.
+Configure the environment:
 
-### Installation
+```text
+MONGO_URI=mongodb://localhost:27017
+MONGO_DBNAME=DayByDay
+SECRET_KEY=replace-with-a-long-random-value
+```
 
-1. Clone this repository and navigate into the project directory.
-2. Install the dependencies:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. Copy `.env.example` to `.env` and edit `MONGO_URI` with your MongoDB connection string. Set `SECRET_KEY` to any random value.
-
-### Running the Application
-
-Start the development server with:
+Then start the app:
 
 ```bash
 python app.py
 ```
 
-Ensure your MongoDB database is reachable via `MONGO_URI`.
+For a WSGI deployment, the included `Procfile` runs `gunicorn app:app`.
 
-### Deployment
+## Project map
 
-A simple `Procfile` is included for platforms such as Render or Heroku. It uses Gunicorn to serve the Flask app:
-
-```bash
-gunicorn app:app
+```text
+app.py       Routes, authentication, habits, and planner workflows
+db.py        MongoDB connection factory
+templates/   Jinja page templates
+static/      Styles and assets
+utils/       Supporting utilities
 ```
+
+`schema.sql` is a legacy relational schema reference; the current application uses MongoDB through PyMongo.
+
+## Security note
+
+Set a strong `SECRET_KEY`, keep `MONGO_URI` out of source control, and deploy behind HTTPS before exposing accounts publicly.
 
 ## License
 
-This project is licensed under the MIT License. Feel free to use it as a starting point for your own habit tracking tools. Don't forget to give credits.
-
----
-
-### @wnizd
-
+Licensed under the [MIT License](LICENSE).
